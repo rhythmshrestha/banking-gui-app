@@ -9,37 +9,38 @@ master.title("Banking App")
 
 #functions
 def finish_registration():
-    name = temp_name.get()
+    username = temp_username.get()
     phonenum = temp_phonenum.get()
     address = temp_address.get()
     password = temp_password.get()
     all_accounts = os.listdir()
 
-    if name == "" or phonenum == "" or address == "" or password == "":
+    if username == "" or phonenum == "" or address == "" or password == "":
         notif.config(fg="red", text="All fields are required")
         return
     
-    for name_check in all_accounts:
-        if name == name_check:
+    for username_check in all_accounts:
+        if username == username_check:
             notif.config(fg="red", text="Account already exists")
             return
         else:
-            new_file = open(name, "w")
-            new_file.write(name+'\n')
+            new_file = open(username, "w")
+            new_file.write(username+'\n')
             new_file.write(phonenum+'\n')
             new_file.write(address+'\n')
             new_file.write(password+'\n')
+            new_file.write('0')
             new_file.close()
             notif.config(fg="green", text="Account created successfully")
 
 def register_logic():
     #variables
-    global temp_name
+    global notif
+    global temp_username
     global temp_phonenum
     global temp_address
     global temp_password
-    global notif
-    temp_name = StringVar()
+    temp_username = StringVar()
     temp_phonenum = StringVar()
     temp_address = StringVar()
     temp_password = StringVar()
@@ -50,7 +51,7 @@ def register_logic():
     
     #register labels
     Label(register_screen, text="Enter your details below to register", font=("calibri", 12)).grid(row=0, columnspan=2, pady=10)
-    Label(register_screen, text="Name", font=("calibri", 12)).grid(row=1, column=0, sticky=W)
+    Label(register_screen, text="Username", font=("calibri", 12)).grid(row=1, column=0, sticky=W)
     Label(register_screen, text="Phone Number", font=("calibri", 12)).grid(row=2, column=0, sticky=W)
     Label(register_screen, text="Address", font=("calibri", 12)).grid(row=3, column=0, sticky=W)
     Label(register_screen, text="Password", font=("calibri", 12)).grid(row=4, column=0, sticky=W)
@@ -58,7 +59,7 @@ def register_logic():
     notif.grid(row=6, columnspan=2, pady=10)
 
     #register entries
-    Entry(register_screen, textvariable= temp_name).grid(row=1, column=1)
+    Entry(register_screen, textvariable= temp_username).grid(row=1, column=1)
     Entry(register_screen, textvariable= temp_phonenum).grid(row=2, column=1)
     Entry(register_screen, textvariable= temp_address).grid(row=3, column=1)
     Entry(register_screen, textvariable= temp_password, show="*").grid(row=4, column=1)
@@ -66,8 +67,58 @@ def register_logic():
     #register button
     Button(register_screen, text="Register", command=finish_registration, font=("calibri", 12)).grid(row=5, columnspan=2, pady=10)
 
+def login_session():
+    all_accounts = os.listdir()
+    login_username = temp_login_username.get()
+    login_password = temp_login_password.get()
+
+    if login_username == "" or login_password == "":
+        login_notif.config(fg="red", text="Fill all the fields")
+        return
+
+    for username in all_accounts:
+        if username == login_username:
+            file = open(username, "r")
+            file_data = file.read()
+            file_data = file_data.split("\n")
+            password = file_data[3]
+            #account dashboard
+            if login_password == password:
+                login_screen.destroy()
+                account_dashboard = Toplevel(master)
+                account_dashboard.title("Your Account")
+                return
+            else:
+                login_notif.config(fg="red", text="Your password is incorrect")
+        else:
+            login_notif.config(fg="red", text="Enter correct username")
+
 def login_logic():
-    print("This is a login page")
+    global login_notif
+    global login_screen
+    global temp_login_username
+    global temp_login_password
+    temp_login_username = StringVar()
+    temp_login_password= StringVar()
+
+    #login screen
+    login_screen = Toplevel(master)
+    login_screen.title("Login")
+
+    #labels for login
+    Label(login_screen, text="Enter your details", font=("calibri", 12)).grid(row=0, columnspan=2, pady=10)
+    Label(login_screen, text="Username", font=("calibri", 12)).grid(row=1, column=0, sticky=W)
+    Label(login_screen, text="Password", font=("calibri", 12)).grid(row=2, column=0, sticky=W)
+    login_notif = Label(login_screen, font=("calibri", 12))
+    login_notif.grid(row=4, columnspan=2, pady=10)
+
+    #login entries
+    Entry(login_screen, textvariable= temp_login_username).grid(row=1, column=1)
+    Entry(login_screen, textvariable= temp_login_password, show="*").grid(row=2, column=1)
+
+    #login button
+    Button(login_screen, text="Login", command=login_session, width= 15, font=("calibri", 12)).grid(row=3, columnspan=2, padx=5, pady=5)
+
 
 #image import
 img = Image.open('C:\\Users\\sthar\\OneDrive\\Desktop\\banking gui app\\img.png')
