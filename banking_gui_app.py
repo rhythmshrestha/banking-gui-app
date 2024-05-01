@@ -13,6 +13,24 @@ def finish_registration():
     phonenum = temp_phonenum.get()
     address = temp_address.get()
     password = temp_password.get()
+    all_accounts = os.listdir()
+
+    if name == "" or phonenum == "" or address == "" or password == "":
+        notif.config(fg="red", text="All fields are required")
+        return
+    
+    for name_check in all_accounts:
+        if name == name_check:
+            notif.config(fg="red", text="Account already exists")
+            return
+        else:
+            new_file = open(name, "w")
+            new_file.write(name+'\n')
+            new_file.write(phonenum+'\n')
+            new_file.write(address+'\n')
+            new_file.write(password+'\n')
+            new_file.close()
+            notif.config(fg="green", text="Account created successfully")
 
 def register_logic():
     #variables
@@ -20,6 +38,7 @@ def register_logic():
     global temp_phonenum
     global temp_address
     global temp_password
+    global notif
     temp_name = StringVar()
     temp_phonenum = StringVar()
     temp_address = StringVar()
@@ -35,6 +54,8 @@ def register_logic():
     Label(register_screen, text="Phone Number", font=("calibri", 12)).grid(row=2, column=0, sticky=W)
     Label(register_screen, text="Address", font=("calibri", 12)).grid(row=3, column=0, sticky=W)
     Label(register_screen, text="Password", font=("calibri", 12)).grid(row=4, column=0, sticky=W)
+    notif = Label(register_screen, font=("calibri", 12))
+    notif.grid(row=6, columnspan=2, pady=10)
 
     #register entries
     Entry(register_screen, textvariable= temp_name).grid(row=1, column=1)
