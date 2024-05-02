@@ -29,7 +29,7 @@ def finish_registration():
             new_file.write(phonenum+'\n')
             new_file.write(address+'\n')
             new_file.write(password+'\n')
-            new_file.write('0')
+            new_file.write("0")
             new_file.close()
             notif.config(fg="green", text="Account created successfully")
 
@@ -92,12 +92,12 @@ def login_session():
                 #labels
                 Label(account_dashboard, text="Account Dashboard", font=("calibri", 12)).grid(row=0, sticky=N, pady=10)
                 Label(account_dashboard, text="Welcome "+ username, font=("calibri", 12)).grid(row=1, sticky=N, pady=5)
+                dashboard_notif = Label(account_dashboard)
+                dashboard_notif.grid(row=5, sticky=N, pady=10)
                 #buttons
                 Button(account_dashboard,relief="groove", text="Deposit", width= 30, command=deposit, font=("calibri", 12)).grid(row=2, sticky=N, padx=15, pady=5)
                 Button(account_dashboard,relief="groove", text="Withdraw", width= 30, command=withdraw, font=("calibri", 12)).grid(row=3, sticky=N, padx=15, pady=5)
                 Button(account_dashboard,relief="groove", text="Check Balance", width= 30, command=check_balance, font=("calibri", 12)).grid(row=4, sticky=N, padx=15, pady=5)
-                dashboard_notif = Label(account_dashboard)
-                dashboard_notif.grid(row=5, sticky=N, pady=10)
                 return
             else:
                 login_notif.config(fg="red", text="Your password is incorrect")
@@ -105,10 +105,101 @@ def login_session():
             login_notif.config(fg="red", text="Enter correct username")
 
 def deposit():
-    print("deposit")
+    global amount
+    global deposit_notif
+    global current_balance_label
+    amount = StringVar()
+    file = open(login_username, "r")
+    file_data = file.read()
+    user_details = file_data.split("\n")
+    balance = user_details[4]
+    #deposit screen
+    deposit_screen = Toplevel(master)
+    deposit_screen.title("Deposit")
+    #label
+    Label(deposit_screen, text="Deposit", font=("calibri", 12)).grid(row=0, columnspan=2, pady=10)
+    current_balance_label = Label(deposit_screen, text="Current Balance: NPR "+ balance, font=("calibri", 12))
+    current_balance_label.grid(row=1, column=0, sticky=W)
+    Label(deposit_screen, text="Amount", font=("calibri", 12)).grid(row=2, column=0, sticky=W)
+    deposit_notif = Label(deposit_screen, font=("calibri", 12))
+    deposit_notif.grid(row=4, columnspan=2, pady=5)
+    #entry
+    Entry(deposit_screen, textvariable=amount).grid(row=2, column=1)
+    #button
+    Button(deposit_screen, text="Finish", relief="groove", command=finish_deposit, width=15, font=("calibri", 12)).grid(row=3, columnspan=2, pady=5, padx=15)
+
+def finish_deposit():
+    if amount.get() == "":
+        deposit_notif.config(fg="red", text="Amount required")
+        return
+    if float(amount.get()) <= 0:
+        deposit_notif.config(fg="red", text="Amount cannot be zero or in negative")
+        return
+    file = open(login_username, "r+")
+    file_data = file.read()
+    details = file_data.split("\n")
+    current_balance = details[4]
+    updated_balance = float(current_balance) + float(amount.get())
+    updated_balance = round(updated_balance, 2)
+    file_data = file_data.replace(current_balance, str(updated_balance))
+    file.seek(0)
+    file.truncate(0)
+    file.write(file_data)
+    file.close()
+
+    current_balance_label.config(fg="green", text="Current Balance: NPR "+ str(updated_balance))
+    deposit_notif.config(fg="green", text="Deposit successful, Balance updated")
 
 def withdraw():
-    print("withdraw")
+    global withdraw_amount
+    global withdraw_notif
+    global current_balance_label
+    withdraw_amount = StringVar()
+    file = open(login_username, "r")
+    file_data = file.read()
+    user_details = file_data.split("\n")
+    balance = user_details[4]
+    #withdraw screen
+    withdraw_screen = Toplevel(master)
+    withdraw_screen.title("Withdraw")
+    #label
+    Label(withdraw_screen, text="Withdraw", font=("calibri", 12)).grid(row=0, columnspan=2, pady=10)
+    current_balance_label = Label(withdraw_screen, text="Current Balance: NPR "+ balance, font=("calibri", 12))
+    current_balance_label.grid(row=1, column=0, sticky=W)
+    Label(withdraw_screen, text="Amount", font=("calibri", 12)).grid(row=2, column=0, sticky=W)
+    withdraw_notif = Label(withdraw_screen, font=("calibri", 12))
+    withdraw_notif.grid(row=4, columnspan=2, pady=5)
+    #entry
+    Entry(withdraw_screen, textvariable=withdraw_amount).grid(row=2, column=1)
+    #button
+    Button(withdraw_screen, text="Finish", relief="groove", command=finish_withdraw, width=15, font=("calibri", 12)).grid(row=3, columnspan=2, pady=5, padx=15)
+
+def finish_withdraw():
+    if withdraw_amount.get() == "":
+        withdraw_notif.config(fg="red", text="Amount required")
+        return
+    if float(withdraw_amount.get()) <= 0:
+        withdraw_notif.config(fg="red", text="Amount cannot be zero or in negative")
+        return
+    file = open(login_username, "r+")
+    file_data = file.read()
+    details = file_data.split("\n")
+    current_balance = details[4]
+
+    if float(current_balance) < float(withdraw_amount.get()):
+        withdraw_notif.config(fg="red", text="Insufficient Funds")
+        return
+    
+    updated_balance = float(current_balance) - float(withdraw_amount.get())
+    updated_balance = round(updated_balance, 2)
+    file_data = file_data.replace(current_balance, str(updated_balance))
+    file.seek(0)
+    file.truncate(0)
+    file.write(file_data)
+    file.close()
+
+    current_balance_label.config(fg="green", text="Current Balance: NPR "+ str(updated_balance))
+    withdraw_notif.config(fg="green", text="Withdraw successful, Balance updated")
 
 def check_balance():
     file = open(login_username, "r")
@@ -134,7 +225,7 @@ def login_logic():
     Label(login_screen, text="Username", font=("calibri", 12)).grid(row=1, column=0, sticky=W)
     Label(login_screen, text="Password", font=("calibri", 12)).grid(row=2, column=0, sticky=W)
     login_notif = Label(login_screen, font=("calibri", 12))
-    login_notif.grid(row=4, columnspan=2, pady=10)
+    login_notif.grid(row=4, columnspan=2, pady=5)
 
     #login entries
     Entry(login_screen, textvariable= temp_login_username).grid(row=1, column=1)
