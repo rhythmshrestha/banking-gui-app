@@ -65,9 +65,11 @@ def register_logic():
     Entry(register_screen, textvariable= temp_password, show="*").grid(row=4, column=1)
 
     #register button
-    Button(register_screen, text="Register", command=finish_registration, font=("calibri", 12)).grid(row=5, columnspan=2, pady=10)
+    Button(register_screen, text="Register",relief="groove", width=15, command=finish_registration, font=("calibri", 12)).grid(row=5, columnspan=2, pady=5, padx=15)
 
 def login_session():
+    global login_username
+    global dashboard_notif
     all_accounts = os.listdir()
     login_username = temp_login_username.get()
     login_password = temp_login_password.get()
@@ -87,11 +89,33 @@ def login_session():
                 login_screen.destroy()
                 account_dashboard = Toplevel(master)
                 account_dashboard.title("Your Account")
+                #labels
+                Label(account_dashboard, text="Account Dashboard", font=("calibri", 12)).grid(row=0, sticky=N, pady=10)
+                Label(account_dashboard, text="Welcome "+ username, font=("calibri", 12)).grid(row=1, sticky=N, pady=5)
+                #buttons
+                Button(account_dashboard,relief="groove", text="Deposit", width= 30, command=deposit, font=("calibri", 12)).grid(row=2, sticky=N, padx=15, pady=5)
+                Button(account_dashboard,relief="groove", text="Withdraw", width= 30, command=withdraw, font=("calibri", 12)).grid(row=3, sticky=N, padx=15, pady=5)
+                Button(account_dashboard,relief="groove", text="Check Balance", width= 30, command=check_balance, font=("calibri", 12)).grid(row=4, sticky=N, padx=15, pady=5)
+                dashboard_notif = Label(account_dashboard)
+                dashboard_notif.grid(row=5, sticky=N, pady=10)
                 return
             else:
                 login_notif.config(fg="red", text="Your password is incorrect")
         else:
             login_notif.config(fg="red", text="Enter correct username")
+
+def deposit():
+    print("deposit")
+
+def withdraw():
+    print("withdraw")
+
+def check_balance():
+    file = open(login_username, "r")
+    file_data = file.read()
+    user_details = file_data.split("\n")
+    balance = user_details[4]
+    dashboard_notif.config(fg="green", text="Your current balance is NPR "+ balance)
 
 def login_logic():
     global login_notif
@@ -117,8 +141,7 @@ def login_logic():
     Entry(login_screen, textvariable= temp_login_password, show="*").grid(row=2, column=1)
 
     #login button
-    Button(login_screen, text="Login", command=login_session, width= 15, font=("calibri", 12)).grid(row=3, columnspan=2, padx=5, pady=5)
-
+    Button(login_screen, text="Login",relief="groove", command=login_session, width= 15, font=("calibri", 12)).grid(row=3, columnspan=2, padx=15, pady=5)
 
 #image import
 img = Image.open('C:\\Users\\sthar\\OneDrive\\Desktop\\banking gui app\\img.png')
@@ -131,7 +154,7 @@ Label(master, text="Developed by Rhythm Shrestha", font=("Calibri",12)).grid(row
 Label(master, image=img).grid(row=2, sticky=N, pady=15)
 
 #buttons
-Button(master, text="Register", font=("Calibri", 12), width=20, command=register_logic).grid(row=3,sticky=N)
-Button(master, text="Login", font=("Calibri", 12), width=20, command=login_logic).grid(row=4,sticky=N, pady=10)
+Button(master, text="Register",relief="groove", font=("Calibri", 12), width=20, command=register_logic).grid(row=3,sticky=N)
+Button(master, text="Login",relief="groove", font=("Calibri", 12), width=20, command=login_logic).grid(row=4,sticky=N, pady=10)
 
 master.mainloop()
